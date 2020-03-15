@@ -5,7 +5,6 @@ import { Accounts } from '../../api/accounts';
 import Container from '../components/Container';
 import TextInput from '../components/TextInput';
 import M from 'materialize-css';
-import { usePrevious } from '../hooks';
 import Card from '../components/Card';
 import _ from 'lodash';
 import Button from '../components/Button';
@@ -23,7 +22,7 @@ const EditAccount = props => {
     expireDay: 10,
     active: true
   });
-  const prevFetch = usePrevious(props.account);
+  const prevFetch = null;
 
   useEffect(() => {
     if (

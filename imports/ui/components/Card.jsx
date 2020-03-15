@@ -10,7 +10,8 @@ export default Card = props => {
     hoverable,
     cardColor,
     cardImagePlaceholder,
-    classNames
+    classNames,
+    href
   } = props;
   const _col = `col ${col || 's12'}`;
   const cardClassnames = `card ${hoverable ? 'hoverable' : ''} ${classNames}`;
@@ -29,6 +30,16 @@ export default Card = props => {
   );
 
   return (
-    <div className={_col}>{to ? <Link to={to}>{content}</Link> : content}</div>
+    <div className={_col}>
+      {to ? (
+        <Link to={to}>{content}</Link>
+      ) : href ? (
+        <a href={href} target="__blank">
+          {content}
+        </a>
+      ) : (
+        content
+      )}
+    </div>
   );
 };

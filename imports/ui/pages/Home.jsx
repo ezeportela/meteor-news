@@ -1,62 +1,65 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import BarChart from 'react-bar-chart';
-import { Periods } from '../../api/periods';
-import { Expenses } from '../../api/expenses';
-import './styles/Home.css';
+import { News } from '../../api/news';
+import { Link } from 'react-router-dom';
+import M from 'materialize-css';
+import Container from '../components/Container';
+import Card from '../components/Card';
+import MessageBox from '../components/MessageBox';
+import Button from '../components/Button';
 
-const margin = { top: 20, right: 20, bottom: 30, left: 60 };
+const Home = props => {
+  useEffect(() => {
+    const elems = document.querySelectorAll('.fixed-action-btn');
+    const instances = M.FloatingActionButton.init(elems, {});
+  });
 
-class Home extends Component {
-  state = { width: 500 };
-
-  componentDidMount() {
-    window.onresize = () => {
-      this.setState({ width: this.refs.root.offsetWidth });
-    };
-  }
-
-  render() {
+  const makeListItem = article => {
     return (
-      <div className="container">
-        <div className="section">
-          <h2>Expense tracker to keep your accounts paided!</h2>
-          <div style={{ width: '50%' }}>
-            <BarChart
-              ylabel="expenses"
-              width={this.state.width}
-              height={500}
-              margin={margin}
-              data={this.props.data}
-              colorByLabel={true}
-            />
-          </div>
-        </div>
-      </div>
+      <Card
+        key={article._id}
+        title={article.title}
+        href={article.link}
+        hoverable={true}></Card>
     );
-  }
-}
+  };
+
+  const news = props.news.map(article => makeListItem(article));
+
+  const handleClick = e => {
+    Meteor.call('news.importFromSources');
+  };
+
+  return (
+    <Container>
+      {news.length === 0 && (
+        <MessageBox message="There aren't news." icon="info" />
+      )}
+
+      <div className="row">
+        <Button
+          type="button"
+          icon="refresh"
+          label="Refresh"
+          classNames="grey lighten-3 black-text"
+          onClick={handleClick}
+        />
+
+        {news}
+      </div>
+
+      <div className="fixed-action-btn">
+        <Link to="/news/create" className="btn-floating btn-large red">
+          <i className="large material-icons">add</i>
+        </Link>
+      </div>
+    </Container>
+  );
+};
 
 export default HomeContainer = withTracker(() => {
-  const user = Meteor.user();
-
-  const data = user
-    ? Periods.find({}, { sort: { value: 1 }, limit: 10 })
-        .fetch()
-        .map(period => ({
-          text: period.formated,
-          value: Expenses.find({
-            owner: user._id,
-            period: period.value,
-            paid: true
-          })
-            .fetch()
-
-            .reduce((total, value) => total + value.price, 0)
-        }))
-    : [];
-
   return {
-    data
+    news: News.find().fetch()
   };
 })(Home);
