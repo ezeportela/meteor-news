@@ -7,7 +7,8 @@ const url = 'https://www.lavoz.com.ar/';
 Meteor.methods({
   async 'news.importFromSources'() {
     try {
-      //if (Meteor.isServer) Meteor.reset();
+      News.remove();
+
       const response = await axios(url);
       const html = response.data;
       const $ = cheerio.load(html);
@@ -16,6 +17,8 @@ Meteor.methods({
       articles.each(function() {
         const title = $(this)
           .find('.title')
+          .first()
+          .find('a')
           .text()
           .trim();
 
@@ -26,16 +29,31 @@ Meteor.methods({
         const section = $(this)
           .find('small')
           .first()
-          .text();
+          .text()
+          .trim();
+
+        const image = $(this)
+          .find('img')
+          .attr('src');
 
         if (title) {
           News.insert({
             title,
             link,
-            section
+            section,
+            image,
+            createdAt: new Date()
           });
         }
       });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  'news.removeAll'() {
+    try {
+      News.remove({});
     } catch (err) {
       console.error(err);
     }
