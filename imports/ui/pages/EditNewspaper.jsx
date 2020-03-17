@@ -12,10 +12,20 @@ import { getPeriod, formatPeriod } from '../../api/common';
 import Checkbox from '../components/Checkbox';
 import { Newspapers } from '../../api/newspapers';
 
+import './styles/EditNewspaper.css';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material.css';
+import { Controlled as CodeMirror } from 'react-codemirror2';
+import 'codemirror/mode/javascript/javascript';
+
 const EditNewspaper = props => {
   const { id } = props;
+  const defaultEditorValue = `($) => {
+  return $('selector');
+}`;
   const [newspaper, setnewspaper] = useState({
-    name: '',
+    title: '',
+    articleSelector: defaultEditorValue,
     periodicity: 1,
     lastPrice: 0,
     lastPeriod: getPeriod(),
@@ -23,6 +33,12 @@ const EditNewspaper = props => {
     active: true
   });
   const prevFetch = null;
+
+  const editorOptions = {
+    mode: 'javascript',
+    theme: 'material',
+    lineNumbers: true
+  };
 
   useEffect(() => {
     if (
@@ -42,6 +58,10 @@ const EditNewspaper = props => {
       [e.target.name]: e.target.value
     });
 
+  const handleEditorChange = (editor, data, value) => {
+    console.log(editor, data, value);
+  };
+
   const handleCheckboxChange = e =>
     setnewspaper({
       ...newspaper,
@@ -54,6 +74,7 @@ const EditNewspaper = props => {
       props.history.push('/newspapers');
     }
   };
+
   const handleSubmit = e => {
     e.preventDefault();
     const { periodicity, lastPrice, expireDay } = newspaper;
@@ -72,13 +93,21 @@ const EditNewspaper = props => {
         <form onSubmit={handleSubmit} className="row">
           <TextInput
             col="s12 m6"
-            id="name"
-            name="name"
+            id="title"
+            name="title"
             onChange={handleChange}
-            label="newspaper Name"
+            label="Title"
             icon="label"
-            value={newspaper.name}
+            value={newspaper.title}
             validate={true}
+          />
+
+          <CodeMirror
+            className="col s12"
+            value={newspaper.articleSelector}
+            name="articleSelector"
+            options={editorOptions}
+            onChange={handleEditorChange}
           />
 
           <TextInput
@@ -90,42 +119,6 @@ const EditNewspaper = props => {
             onChange={handleChange}
             value={newspaper.lastPrice}
             icon="attach_money"
-            validate={true}
-          />
-
-          <TextInput
-            col="s12 m6"
-            id="periodicity"
-            name="periodicity"
-            label="Periodicity"
-            type="number"
-            onChange={handleChange}
-            value={newspaper.periodicity}
-            icon="calendar_view_day"
-            validate={true}
-          />
-
-          <TextInput
-            col="s12 m6"
-            id="lastPeriod"
-            name="lastPeriod"
-            label="Last Period"
-            type="text"
-            value={formatPeriod(newspaper.lastPeriod)}
-            readOnly={true}
-            icon="calendar_today"
-            required={false}
-          />
-
-          <TextInput
-            col="s12 m6"
-            id="expireDay"
-            name="expireDay"
-            label="Expire Day"
-            type="number"
-            value={newspaper.expireDay}
-            onChange={handleChange}
-            icon="history"
             validate={true}
           />
 
