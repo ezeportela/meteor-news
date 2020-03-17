@@ -20,17 +20,17 @@ import 'codemirror/mode/javascript/javascript';
 
 const EditNewspaper = props => {
   const { id } = props;
-  const defaultEditorValue = `($) => {
-  return $('selector');
-}`;
-  const [newspaper, setnewspaper] = useState({
+  const defaultEditorValue = `($) => $('selector');`;
+  const [newspaper, setNewspaper] = useState({
     title: '',
+    url: '',
+    logoURL: '',
+    active: true,
     articleSelector: defaultEditorValue,
-    periodicity: 1,
-    lastPrice: 0,
-    lastPeriod: getPeriod(),
-    expireDay: 10,
-    active: true
+    titleSelector: defaultEditorValue,
+    linkSelector: defaultEditorValue,
+    sectionSelector: defaultEditorValue,
+    imageSelector: defaultEditorValue
   });
   const prevFetch = null;
 
@@ -47,13 +47,13 @@ const EditNewspaper = props => {
       (_.isEmpty(prevFetch) ||
         confirm('The record has been updated. Would you like to reload it?'))
     ) {
-      setnewspaper(props.newspaper);
+      setNewspaper(props.newspaper);
     }
     M.updateTextFields();
   });
 
   const handleChange = e =>
-    setnewspaper({
+    setNewspaper({
       ...newspaper,
       [e.target.name]: e.target.value
     });
@@ -63,7 +63,7 @@ const EditNewspaper = props => {
   };
 
   const handleCheckboxChange = e =>
-    setnewspaper({
+    setNewspaper({
       ...newspaper,
       [e.target.name]: e.target.checked
     });
@@ -102,23 +102,25 @@ const EditNewspaper = props => {
             validate={true}
           />
 
-          <CodeMirror
-            className="col s12"
-            value={newspaper.articleSelector}
-            name="articleSelector"
-            options={editorOptions}
-            onChange={handleEditorChange}
+          <TextInput
+            col="s12 m6"
+            id="url"
+            name="url"
+            onChange={handleChange}
+            label="URL"
+            icon="vpn_lock"
+            value={newspaper.url}
+            validate={true}
           />
 
           <TextInput
             col="s12 m6"
-            id="price"
-            name="lastPrice"
-            label="Price"
-            type="number"
+            id="logoURL"
+            name="logoURL"
             onChange={handleChange}
-            value={newspaper.lastPrice}
-            icon="attach_money"
+            label="Logo URL"
+            icon="image"
+            value={newspaper.logoURL}
             validate={true}
           />
 
@@ -128,6 +130,42 @@ const EditNewspaper = props => {
             label="Active"
             checked={newspaper.active}
             onChange={handleCheckboxChange}
+          />
+
+          <span class="col s12">Article Selector</span>
+          <CodeMirror
+            className="col s12"
+            value={newspaper.articleSelector}
+            name="articleSelector"
+            options={editorOptions}
+            onChange={handleEditorChange}
+          />
+
+          <span class="col s12">Link Selector</span>
+          <CodeMirror
+            className="col s12"
+            value={newspaper.linkSelector}
+            name="articleSelector"
+            options={editorOptions}
+            onChange={handleEditorChange}
+          />
+
+          <span class="col s12">Section Selector</span>
+          <CodeMirror
+            className="col s12"
+            value={newspaper.sectionSelector}
+            name="articleSelector"
+            options={editorOptions}
+            onChange={handleEditorChange}
+          />
+
+          <span class="col s12">Image Selector</span>
+          <CodeMirror
+            className="col s12"
+            value={newspaper.imageSelector}
+            name="articleSelector"
+            options={editorOptions}
+            onChange={handleEditorChange}
           />
 
           <div className="card-actions col s12">

@@ -4,25 +4,25 @@ import { Newspapers } from './index';
 Meteor.methods({
   'newspapers.insert'({
     title,
+    url,
+    logoURL,
     articleSelector,
     titleSelector,
     linkSelector,
     sectionSelector,
-    imageSelector,
-    url,
-    logoURL
+    imageSelector
   }) {
     const user = Meteor.users.findOne(this.userId);
 
     Newspapers.insert({
       title,
+      url,
+      logoURL,
       articleSelector,
       titleSelector,
       linkSelector,
       sectionSelector,
       imageSelector,
-      url,
-      logoURL,
       createdAt: new Date(),
       owner: this.userId,
       displayName: user.profile.displayName,
