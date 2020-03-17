@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import M from 'materialize-css';
 import Blaze from 'meteor/gadicc:blaze-react-component';
 import LinkButton from './LinkButton';
+const { Routes, hasAccesss } = require('../Routes');
 
 const Header = props => {
   useEffect(() => {
@@ -11,17 +12,14 @@ const Header = props => {
     M.Sidenav.init(elems, {});
   });
 
-  const routes = [
-    { label: 'Expenses', to: '/expenses', protected: true },
-    { label: 'Accounts', to: '/accounts', protected: true }
-  ];
+  const routes = Routes;
 
-  const makeLinks = routes =>
+  const renderLinks = routes =>
     routes.map(
       route =>
-        (!route.protected || (route.protected && props.currentUser)) && (
-          <li key={route.to}>
-            <Link className="sidenav-close" to={route.to}>
+        hasAccesss(route, props.currentUser) && (
+          <li key={route.path}>
+            <Link className="sidenav-close" to={route.path}>
               {route.label}
             </Link>
           </li>
@@ -43,7 +41,7 @@ const Header = props => {
           <ul className="right hide-on-med-and-down">
             {props.currentUser ? (
               <React.Fragment>
-                {makeLinks(routes)}
+                {renderLinks(routes)}
                 <li>Hi, {props.currentUser.profile.displayName}!</li>
                 <li>
                   <Blaze template="atNavButton" />
@@ -55,7 +53,7 @@ const Header = props => {
           </ul>
 
           <ul id="nav-mobile" className="sidenav">
-            {makeLinks(routes)}
+            {renderLinks(routes)}
 
             {props.currentUser ? (
               <li>

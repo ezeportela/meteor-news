@@ -9,22 +9,37 @@ axios(url)
     const $ = cheerio.load(html);
     const articles = $('article');
 
-    articles.each(function() {
-      const title = $(this)
-        .find('.title')
-        .text()
-        .trim();
+    const fn = `(cheerio, html) => {
+      const $ = cheerio.load(html);
+      console.log(html);
+      return $('a > amp-img').attr('src');
+    }`;
 
-      const link = $(this)
-        .find('h1 > a,h2 > a,h3 > a')
-        .attr('href');
+    const article = $(articles).first();
 
-      const section = $(this)
-        .find('small')
-        .first()
-        .text();
+    const title = $(article)
+      .find('.title')
+      .first()
+      .find('a')
+      .text()
+      .trim();
 
-      if (title) console.log(title, link, section);
-    });
+    const link = $(article)
+      .find('h1 > a,h2 > a,h3 > a')
+      .attr('href');
+
+    const section = $(article)
+      .find('small')
+      .first()
+      .text()
+      .trim();
+
+    const image = $(article)
+      .find('.image')
+      .html();
+
+    const lal = eval(fn)(cheerio, image);
+
+    if (title) console.log(lal);
   })
   .catch(console.error);

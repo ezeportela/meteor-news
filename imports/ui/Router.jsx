@@ -1,29 +1,21 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import Home from './pages/Home';
-import Signin from './pages/Signin';
-import EditAccount from './pages/EditAccount';
-import AccountsList from './pages/AccountsList';
+import { Routes, hasAccesss } from './Routes';
 
 export default Router = props => (
   <BrowserRouter>
     <Layout currentUser={props.currentUser}>
       <Switch>
-        <Route exact path="/" component={Home} />
-
-        {props.currentUser ? (
-          <React.Fragment>
-            <Route exact path="/accounts" component={AccountsList} />
-            <Route exact path="/accounts/create" component={EditAccount} />
+        {Routes.filter(route => hasAccesss(route, props.currentUser)).map(
+          route => (
             <Route
-              exact
-              path="/accounts/:accountId/edit"
-              component={EditAccount}
+              key={route.path}
+              exact={route.exact}
+              path={route.path}
+              component={route.component}
             />
-          </React.Fragment>
-        ) : (
-          <Route exact path="/signin" component={Signin} />
+          )
         )}
       </Switch>
     </Layout>

@@ -22,7 +22,7 @@ const Home = props => {
         cardImagePlaceholder={
           article.image ? <img src={article.image} /> : null
         }
-        col="m3 s12"
+        col="m4 s12"
         key={article._id}
         title={article.title}
         href={article.link}
@@ -66,12 +66,6 @@ const Home = props => {
       )}
 
       <div className="row">{news}</div>
-
-      <div className="fixed-action-btn">
-        <Link to="/news/create" className="btn-floating btn-large red">
-          <i className="large material-icons">add</i>
-        </Link>
-      </div>
     </Container>
   );
 };

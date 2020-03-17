@@ -14,6 +14,11 @@ Meteor.methods({
       const $ = cheerio.load(html);
       const articles = $('article');
 
+      const fn = `(cheerio, html) => {
+        const $ = cheerio.load(html);
+        return $('a > amp-img').attr('src');
+      }`;
+
       articles.each(function() {
         const title = $(this)
           .find('.title')
@@ -32,9 +37,7 @@ Meteor.methods({
           .text()
           .trim();
 
-        const image = $(this)
-          .find('img')
-          .attr('src');
+        const image = eval(fn)(cheerio, this);
 
         if (title) {
           News.insert({

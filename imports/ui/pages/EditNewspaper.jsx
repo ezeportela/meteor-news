@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Accounts } from '../../api/accounts';
 import Container from '../components/Container';
 import TextInput from '../components/TextInput';
 import M from 'materialize-css';
@@ -11,10 +10,11 @@ import Button from '../components/Button';
 import LinkButton from '../components/LinkButton';
 import { getPeriod, formatPeriod } from '../../api/common';
 import Checkbox from '../components/Checkbox';
+import { Newspapers } from '../../api/newspapers';
 
-const EditAccount = props => {
+const EditNewspaper = props => {
   const { id } = props;
-  const [account, setAccount] = useState({
+  const [newspaper, setnewspaper] = useState({
     name: '',
     periodicity: 1,
     lastPrice: 0,
@@ -26,44 +26,44 @@ const EditAccount = props => {
 
   useEffect(() => {
     if (
-      prevFetch !== props.account &&
-      !_.isEmpty(props.account) &&
+      prevFetch !== props.newspaper &&
+      !_.isEmpty(props.newspaper) &&
       (_.isEmpty(prevFetch) ||
         confirm('The record has been updated. Would you like to reload it?'))
     ) {
-      setAccount(props.account);
+      setnewspaper(props.newspaper);
     }
     M.updateTextFields();
   });
 
   const handleChange = e =>
-    setAccount({
-      ...account,
+    setnewspaper({
+      ...newspaper,
       [e.target.name]: e.target.value
     });
 
   const handleCheckboxChange = e =>
-    setAccount({
-      ...account,
+    setnewspaper({
+      ...newspaper,
       [e.target.name]: e.target.checked
     });
 
   const handleClickDelete = () => {
-    if (confirm('Are you sure do you want to delete the account?')) {
-      Meteor.call('accounts.delete', account._id);
-      props.history.push('/accounts');
+    if (confirm('Are you sure do you want to delete the newspaper?')) {
+      Meteor.call('newspapers.delete', newspaper._id);
+      props.history.push('/newspapers');
     }
   };
   const handleSubmit = e => {
     e.preventDefault();
-    const { periodicity, lastPrice, expireDay } = account;
-    Object.assign(account, {
+    const { periodicity, lastPrice, expireDay } = newspaper;
+    Object.assign(newspaper, {
       periodicity: parseInt(periodicity),
       lastPrice: parseInt(lastPrice),
       expireDay: parseInt(expireDay)
     });
-    Meteor.call('accounts.save', id, account);
-    props.history.push('/accounts');
+    Meteor.call('newspapers.save', id, newspaper);
+    props.history.push('/newspapers');
   };
 
   return (
@@ -75,9 +75,9 @@ const EditAccount = props => {
             id="name"
             name="name"
             onChange={handleChange}
-            label="Account Name"
+            label="newspaper Name"
             icon="label"
-            value={account.name}
+            value={newspaper.name}
             validate={true}
           />
 
@@ -88,7 +88,7 @@ const EditAccount = props => {
             label="Price"
             type="number"
             onChange={handleChange}
-            value={account.lastPrice}
+            value={newspaper.lastPrice}
             icon="attach_money"
             validate={true}
           />
@@ -100,7 +100,7 @@ const EditAccount = props => {
             label="Periodicity"
             type="number"
             onChange={handleChange}
-            value={account.periodicity}
+            value={newspaper.periodicity}
             icon="calendar_view_day"
             validate={true}
           />
@@ -111,7 +111,7 @@ const EditAccount = props => {
             name="lastPeriod"
             label="Last Period"
             type="text"
-            value={formatPeriod(account.lastPeriod)}
+            value={formatPeriod(newspaper.lastPeriod)}
             readOnly={true}
             icon="calendar_today"
             required={false}
@@ -123,7 +123,7 @@ const EditAccount = props => {
             name="expireDay"
             label="Expire Day"
             type="number"
-            value={account.expireDay}
+            value={newspaper.expireDay}
             onChange={handleChange}
             icon="history"
             validate={true}
@@ -133,19 +133,19 @@ const EditAccount = props => {
             name="active"
             col="input-field s12 m6"
             label="Active"
-            checked={account.active}
+            checked={newspaper.active}
             onChange={handleCheckboxChange}
           />
 
           <div className="card-actions col s12">
             <LinkButton
-              to="/accounts"
+              to="/newspapers"
               classNames="grey lighten-3 black-text"
               icon="clear"
               label="Cancel"
             />
 
-            {account._id && (
+            {newspaper._id && (
               <Button
                 type="button"
                 icon="delete"
@@ -163,12 +163,12 @@ const EditAccount = props => {
   );
 };
 
-export default EditAccountContainer = withTracker(props => {
-  const { accountId: id } = props.match.params;
+export default EditNewspaperContainer = withTracker(props => {
+  const { id } = props.match.params;
 
   return {
     id,
-    account: Accounts.findOne({ _id: id }) || {},
-    title: id ? 'Edit Account' : 'New Account'
+    newspaper: Newspapers.findOne(id) || {},
+    title: id ? 'Edit Newspaper' : 'New Newspaper'
   };
-})(EditAccount);
+})(EditNewspaper);

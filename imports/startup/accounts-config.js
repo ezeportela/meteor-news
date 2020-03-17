@@ -48,3 +48,13 @@ AccountsTemplates.configure({
     },
   },*/
 });
+
+AccountsTemplates.addFields([
+  {
+    _id: 'displayName',
+    type: 'text',
+    displayName: 'Display Name',
+    required: true,
+    minLength: 5
+  }
+]);
