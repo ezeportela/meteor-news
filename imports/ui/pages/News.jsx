@@ -2,65 +2,45 @@ import React, { useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { News } from '../../api/news';
-import { Link } from 'react-router-dom';
 import M from 'materialize-css';
 import Container from '../components/Container';
 import Card from '../components/Card';
 import MessageBox from '../components/MessageBox';
-import Button from '../components/Button';
-import './styles/Home.css';
+import { getDateNow } from '../../api/common/moment';
+import './styles/News.css';
 
 const Home = props => {
   useEffect(() => {
     const elems = document.querySelectorAll('.fixed-action-btn');
-    const instances = M.FloatingActionButton.init(elems, {});
+    M.FloatingActionButton.init(elems, {});
   });
 
-  const makeListItem = article => {
+  const renderNews = article => {
     return (
       <Card
         cardImagePlaceholder={
-          article.image ? <img src={article.image} /> : null
+          <img
+            src={
+              article.image ? article.image : '/images/image-placeholder.png'
+            }
+          />
         }
         col="m4 s12"
         key={article._id}
-        title={article.title}
         href={article.link}
         hoverable={true}
-        classNames="article"></Card>
+        classNames="article">
+        <img src={article.newspaperLogo} className="newspaper-logo" />
+        <h1 className="article-title">{article.title}</h1>
+        <span className="article-section">{article.section}</span>
+      </Card>
     );
   };
 
-  const news = props.news.map(article => makeListItem(article));
-
-  const handleClickDelete = e => {
-    Meteor.call('news.removeAll');
-  };
-
-  const handleClickImport = e => {
-    Meteor.call('news.importFromSources');
-  };
+  const news = props.news.map(article => renderNews(article));
 
   return (
     <Container>
-      <div className="row">
-        <Button
-          type="button"
-          icon="delete"
-          label="Delete"
-          classNames="grey lighten-3 black-text"
-          onClick={handleClickDelete}
-        />
-
-        <Button
-          type="button"
-          icon="cloud_download"
-          label="Import"
-          classNames="grey lighten-3 black-text"
-          onClick={handleClickImport}
-        />
-      </div>
-
       {news.length === 0 && (
         <MessageBox message="There aren't news." icon="info" />
       )}
@@ -72,6 +52,6 @@ const Home = props => {
 
 export default HomeContainer = withTracker(() => {
   return {
-    news: News.find().fetch()
+    news: News.find({ date: getDateNow() }, { sort: { position: 1 } }).fetch()
   };
 })(Home);

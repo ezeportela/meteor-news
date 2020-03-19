@@ -2,53 +2,69 @@ import { Meteor } from 'meteor/meteor';
 import { News } from './index';
 import axios from 'axios';
 import cheerio from 'cheerio';
-const url = 'https://www.lavoz.com.ar/';
+import { Newspapers } from '../newspapers';
+import { getDateNow } from '../common/moment';
 
 Meteor.methods({
-  async 'news.importFromSources'() {
+  async 'news.importNews'() {
     try {
-      News.remove();
+      const date = getDateNow();
 
-      const response = await axios(url);
-      const html = response.data;
-      const $ = cheerio.load(html);
-      const articles = $('article');
+      const newspapers = Newspapers.find({ active: true }).fetch();
 
-      const fn = `(cheerio, html) => {
+      for (const newspaper of newspapers) {
+        let position = 0;
+        const {
+          _id: newspaperId,
+          title: newspaperTitle,
+          logoURL: newspaperLogo,
+          url,
+          articleSelector,
+          titleSelector,
+          linkSelector,
+          sectionSelector,
+          imageSelector
+        } = newspaper;
+
+        const response = await axios(url);
+        const html = response.data;
         const $ = cheerio.load(html);
-        return $('a > amp-img').attr('src');
-      }`;
+        const articles = eval(articleSelector)($);
 
-      articles.each(function() {
-        const title = $(this)
-          .find('.title')
-          .first()
-          .find('a')
-          .text()
-          .trim();
+        articles.each(function() {
+          position++;
+          const title = eval(titleSelector)($, this);
+          const link = eval(linkSelector)($, this);
+          const section = eval(sectionSelector)($, this);
+          const image = eval(imageSelector)($, this);
 
-        const link = $(this)
-          .find('h1 > a,h2 > a,h3 > a')
-          .attr('href');
+          if (title && link) {
+            const _section = section ? section : 'General';
+            Meteor.call(
+              'sections.insert',
+              _section,
+              newspaperId,
+              newspaperTitle
+            );
 
-        const section = $(this)
-          .find('small')
-          .first()
-          .text()
-          .trim();
-
-        const image = eval(fn)(cheerio, this);
-
-        if (title) {
-          News.insert({
-            title,
-            link,
-            section,
-            image,
-            createdAt: new Date()
-          });
-        }
-      });
+            const total = News.find({ title, link }).count();
+            if (total === 0) {
+              News.insert({
+                title,
+                link,
+                section: _section,
+                image,
+                position,
+                newspaperId,
+                newspaperTitle,
+                newspaperLogo,
+                date,
+                createdAt: new Date()
+              });
+            }
+          }
+        });
+      }
     } catch (err) {
       console.error(err);
     }

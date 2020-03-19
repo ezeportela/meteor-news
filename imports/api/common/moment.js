@@ -12,3 +12,5 @@ export const formatPeriodValue = period =>
 
 export const formatPeriod = period =>
   moment(period, 'YYYYMM').format('MMM YYYY');
+
+export const getDateNow = () => parseInt(moment().format('YYYYMMDD'));

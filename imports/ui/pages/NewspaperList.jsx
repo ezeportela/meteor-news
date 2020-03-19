@@ -11,7 +11,7 @@ import { Newspapers } from '../../api/newspapers';
 const NewspaperList = props => {
   useEffect(() => {
     const elems = document.querySelectorAll('.fixed-action-btn');
-    const instances = M.FloatingActionButton.init(elems, {});
+    M.FloatingActionButton.init(elems, {});
   });
 
   const renderItem = newspaper => {
@@ -27,8 +27,34 @@ const NewspaperList = props => {
 
   const newspapers = props.newspapers.map(newspaper => renderItem(newspaper));
 
+  const handleClickDelete = e => {
+    Meteor.call('news.removeAll');
+  };
+
+  const handleClickImport = e => {
+    Meteor.call('news.importNews');
+  };
+
   return (
     <Container>
+      <div className="row">
+        <Button
+          type="button"
+          icon="delete"
+          label="Delete"
+          classNames="grey lighten-3 black-text"
+          onClick={handleClickDelete}
+        />
+
+        <Button
+          type="button"
+          icon="cloud_download"
+          label="Import"
+          classNames="grey lighten-3 black-text"
+          onClick={handleClickImport}
+        />
+      </div>
+
       {newspapers.length === 0 && (
         <MessageBox message="There aren't newspapers." icon="info" />
       )}
