@@ -2,25 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import Container from '../components/Container';
-import TextInput from '../components/TextInput';
 import M from 'materialize-css';
 import Card from '../components/Card';
 import _ from 'lodash';
 import Button from '../components/Button';
 import LinkButton from '../components/LinkButton';
-import { getPeriod, formatPeriod } from '../../api/common';
-import Checkbox from '../components/Checkbox';
 import { Newspapers } from '../../api/newspapers';
-
+import { renderItems } from '../utils/renderItems';
 import './styles/EditNewspaper.css';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import { Controlled as CodeMirror } from 'react-codemirror2';
-import 'codemirror/mode/javascript/javascript';
 
 const EditNewspaper = props => {
   const { id } = props;
   const defaultEditorValue = `($) => $('selector');`;
+  const [fetched, setFetched] = useState(false);
   const [newspaper, setNewspaper] = useState({
     title: '',
     url: '',
@@ -32,40 +26,25 @@ const EditNewspaper = props => {
     sectionSelector: defaultEditorValue,
     imageSelector: defaultEditorValue
   });
-  const prevFetch = null;
-
-  const editorOptions = {
-    mode: 'javascript',
-    theme: 'material',
-    lineNumbers: true
-  };
 
   useEffect(() => {
-    if (
-      prevFetch !== props.newspaper &&
-      !_.isEmpty(props.newspaper) &&
-      (_.isEmpty(prevFetch) ||
-        confirm('The record has been updated. Would you like to reload it?'))
-    ) {
+    if (!_.isEmpty(props.newspaper) && !fetched) {
       setNewspaper(props.newspaper);
+      setFetched(true);
     }
     M.updateTextFields();
   });
 
-  const handleChange = e =>
+  const handleChange = (prop = 'value') => e =>
     setNewspaper({
       ...newspaper,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target[prop]
     });
 
-  const handleEditorChange = (editor, data, value) => {
-    console.log(editor, data, value);
-  };
-
-  const handleCheckboxChange = e =>
+  const handleEditorChange = name => (editor, data, value) =>
     setNewspaper({
       ...newspaper,
-      [e.target.name]: e.target.checked
+      [name]: value
     });
 
   const handleClickDelete = () => {
@@ -77,96 +56,85 @@ const EditNewspaper = props => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    const { periodicity, lastPrice, expireDay } = newspaper;
-    Object.assign(newspaper, {
-      periodicity: parseInt(periodicity),
-      lastPrice: parseInt(lastPrice),
-      expireDay: parseInt(expireDay)
-    });
     Meteor.call('newspapers.save', id, newspaper);
     props.history.push('/newspapers');
   };
+
+  const items = [
+    {
+      name: 'title',
+      label: 'Title',
+      type: 'text',
+      icon: 'label',
+      col: 's12 m6',
+      onChange: handleChange()
+    },
+    {
+      name: 'url',
+      label: 'URL',
+      type: 'text',
+      icon: 'vpn_lock',
+      col: 's12 m6',
+      onChange: handleChange()
+    },
+    {
+      name: 'logoURL',
+      label: 'Logo URL',
+      type: 'text',
+      icon: 'image',
+      col: 's12 m6',
+      onChange: handleChange()
+    },
+    {
+      name: 'active',
+      label: 'Active',
+      type: 'checked',
+      icon: 'active',
+      col: 's12 m6',
+      onChange: handleChange('checked')
+    },
+    {
+      name: 'articleSelector',
+      label: 'Article Selector',
+      type: 'editor',
+      col: 's12 m6',
+      onChange: handleEditorChange
+    },
+    {
+      name: 'titleSelector',
+      label: 'Title Selector',
+      type: 'editor',
+      col: 's12 m6',
+      onChange: handleEditorChange
+    },
+    {
+      name: 'linkSelector',
+      label: 'Link Selector',
+      type: 'editor',
+      col: 's12 m6',
+      onChange: handleEditorChange
+    },
+    {
+      name: 'sectionSelector',
+      label: 'Section Selector',
+      type: 'editor',
+      col: 's12 m6',
+      onChange: handleEditorChange
+    },
+    {
+      name: 'imageSelector',
+      label: 'Image Selector',
+      type: 'editor',
+      col: 's12 m6',
+      onChange: handleEditorChange
+    }
+  ];
 
   return (
     <Container>
       <Card hoverable={false} title={props.title}>
         <form onSubmit={handleSubmit} className="row">
-          <TextInput
-            col="s12 m6"
-            id="title"
-            name="title"
-            onChange={handleChange}
-            label="Title"
-            icon="label"
-            value={newspaper.title}
-            validate={true}
-          />
-
-          <TextInput
-            col="s12 m6"
-            id="url"
-            name="url"
-            onChange={handleChange}
-            label="URL"
-            icon="vpn_lock"
-            value={newspaper.url}
-            validate={true}
-          />
-
-          <TextInput
-            col="s12 m6"
-            id="logoURL"
-            name="logoURL"
-            onChange={handleChange}
-            label="Logo URL"
-            icon="image"
-            value={newspaper.logoURL}
-            validate={true}
-          />
-
-          <Checkbox
-            name="active"
-            col="input-field s12 m6"
-            label="Active"
-            checked={newspaper.active}
-            onChange={handleCheckboxChange}
-          />
-
-          <span class="col s12">Article Selector</span>
-          <CodeMirror
-            className="col s12"
-            value={newspaper.articleSelector}
-            name="articleSelector"
-            options={editorOptions}
-            onChange={handleEditorChange}
-          />
-
-          <span class="col s12">Link Selector</span>
-          <CodeMirror
-            className="col s12"
-            value={newspaper.linkSelector}
-            name="articleSelector"
-            options={editorOptions}
-            onChange={handleEditorChange}
-          />
-
-          <span class="col s12">Section Selector</span>
-          <CodeMirror
-            className="col s12"
-            value={newspaper.sectionSelector}
-            name="articleSelector"
-            options={editorOptions}
-            onChange={handleEditorChange}
-          />
-
-          <span class="col s12">Image Selector</span>
-          <CodeMirror
-            className="col s12"
-            value={newspaper.imageSelector}
-            name="articleSelector"
-            options={editorOptions}
-            onChange={handleEditorChange}
-          />
+          {renderItems(items, newspaper)}
 
           <div className="card-actions col s12">
             <LinkButton

@@ -1,5 +1,9 @@
 .CodeMirror {
-  height: 90px !important;
+  height: 130px !important;
   border-radius: 10px;
   margin-bottom: 15px;
+}
+
+.editor-label {
+  color: #9e9e9e;
 }
