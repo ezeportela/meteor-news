@@ -16,7 +16,7 @@
     "lodash": "^4.17.15",
     "materialize-css": "^1.0.0",
     "meteor-node-stubs": "^1.0.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "prop-types": "^15.7.2",
     "puppeteer": "^2.1.1",
     "react": "^16.9.0",
